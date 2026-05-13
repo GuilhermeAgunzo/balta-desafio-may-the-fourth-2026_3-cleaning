@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>6ab0650f-cbeb-4f73-b974-9192975a3ac8</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Cleaning.Core\Cleaning.Core.csproj" />
+    <ProjectReference Include="..\Cleaning.Application\Cleaning.Application.csproj" />
+    <ProjectReference Include="..\Cleaning.Infra\Cleaning.Infra.csproj" />
+    <ProjectReference Include="..\Cleaning.ServiceDefaults\Cleaning.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+</Project>
