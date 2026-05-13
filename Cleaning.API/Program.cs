@@ -49,7 +49,9 @@ else
 }
 
 app.UseCors("frontend");
-app.UseHttpsRedirection();
+app.UseWhen(
+    context => !IsHealthCheckRequest(context.Request.Path),
+    branch => branch.UseHttpsRedirection());
 
 if (app.Environment.IsDevelopment())
 {
@@ -152,3 +154,6 @@ static Dictionary<string, string[]>? Validate<T>(T model)
             result => result.ErrorMessage ?? "Valor invalido.")
         .ToDictionary(group => group.Key, group => group.ToArray());
 }
+
+static bool IsHealthCheckRequest(PathString path)
+    => path.StartsWithSegments("/health") || path.StartsWithSegments("/alive");
