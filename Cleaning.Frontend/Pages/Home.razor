@@ -1,0 +1,426 @@
+﻿@page "/"
+@inject CleaningApiClient ApiClient
+
+<PageTitle>Orbital Cleaning Command</PageTitle>
+
+<div class="dashboard">
+    <section class="panel hero-panel">
+        <div>
+            <p class="panel-kicker">Orbital Maintenance Command</p>
+            <h1>PAINEL DE LIMPEZA ESTELAR</h1>
+            <p class="hero-copy">
+                Registre rotinas recorrentes, acompanhe alertas de manutencao e receba a leitura estrategica da IA
+                para manter sua base no ritmo da galaxia.
+            </p>
+        </div>
+
+        <div class="hero-status">
+            <div class="signal-chip @GetPriorityClass(_analysis?.Priority ?? MaintenancePriority.Low)">
+                @_analysis?.Source ?? "carregando"
+            </div>
+            <p class="hero-callout">Prioridade atual: <strong>@GetPriorityLabel(_analysis?.Priority ?? MaintenancePriority.Low)</strong></p>
+            <p class="hero-callout">Alertas no radar: <strong>@AlertCount</strong></p>
+        </div>
+    </section>
+
+    @if (!string.IsNullOrWhiteSpace(_errorMessage))
+    {
+        <section class="panel system-alert-panel">
+            <p class="panel-kicker">Falha no canal</p>
+            <h2>Comunicacao interrompida</h2>
+            <p>@_errorMessage</p>
+        </section>
+    }
+
+    <div class="dashboard-grid">
+        <section class="panel command-panel">
+            <div class="panel-heading">
+                <p class="panel-kicker">Nova missao</p>
+                <h2>CADASTRAR TAREFA</h2>
+            </div>
+
+            <EditForm Model="_form" OnValidSubmit="CreateTaskAsync">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="validation-summary" />
+
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="task-name">Nome</label>
+                        <InputText id="task-name" @bind-Value="_form.Name" />
+                    </div>
+
+                    <div class="field">
+                        <label for="task-date">Primeira execucao</label>
+                        <InputDate id="task-date" @bind-Value="_form.FirstExecutionDate" />
+                    </div>
+
+                    <div class="field field-span">
+                        <label for="task-description">Descricao</label>
+                        <InputTextArea id="task-description" @bind-Value="_form.Description" />
+                    </div>
+
+                    <div class="field">
+                        <label for="task-interval">Periodicidade</label>
+                        <InputNumber id="task-interval" @bind-Value="_form.RecurrenceInterval" />
+                    </div>
+
+                    <div class="field">
+                        <label for="task-unit">Unidade</label>
+                        <InputSelect id="task-unit" @bind-Value="_form.RecurrenceUnit">
+                            @foreach (var unit in Enum.GetValues<RecurrenceUnit>())
+                            {
+                                <option value="@unit">@GetRecurrenceLabel(unit)</option>
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
+
+                <button class="tech-button primary" type="submit" disabled="@IsBusy">
+                    @(IsBusy ? "sincronizando..." : "registrar missao")
+                </button>
+            </EditForm>
+        </section>
+
+        <section class="panel telemetry-panel">
+            <div class="panel-heading">
+                <p class="panel-kicker">Telemetria</p>
+                <h2>STATUS DA BASE</h2>
+            </div>
+
+            <div class="stats-grid">
+                <article class="stat-card">
+                    <span class="stat-label">Total</span>
+                    <strong class="stat-value">@TotalCount</strong>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-label">Pendentes</span>
+                    <strong class="stat-value">@PendingCount</strong>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-label">Atrasadas</span>
+                    <strong class="stat-value">@OverdueCount</strong>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-label">Alertas</span>
+                    <strong class="stat-value">@AlertCount</strong>
+                </article>
+            </div>
+
+            <div class="filter-strip">
+                @foreach (var filter in Enum.GetValues<MaintenanceTaskFilter>())
+                {
+                    <button class="filter-button @(filter == _currentFilter ? "active" : null)"
+                            type="button"
+                            @onclick="() => ChangeFilterAsync(filter)">
+                        @GetFilterLabel(filter)
+                    </button>
+                }
+            </div>
+        </section>
+
+        <section class="panel tasks-panel">
+            <div class="panel-heading">
+                <p class="panel-kicker">Fila de execucao</p>
+                <h2>TAREFAS MONITORADAS</h2>
+            </div>
+
+            @if (_isLoading)
+            {
+                <p class="empty-state">Carregando sinais da frota...</p>
+            }
+            else if (_tasks.Count == 0)
+            {
+                <p class="empty-state">Nenhuma tarefa encontrada para esse filtro.</p>
+            }
+            else
+            {
+                <div class="task-list">
+                    @foreach (var task in _tasks)
+                    {
+                        <article class="task-card @(task.Status == MaintenanceTaskStatus.Overdue ? "overdue" : "pending")">
+                            <div class="task-card-header">
+                                <div>
+                                    <h3>@task.Name</h3>
+                                    <p>@task.Description</p>
+                                </div>
+                                <span class="status-pill @(task.Status == MaintenanceTaskStatus.Overdue ? "danger" : "ok")">
+                                    @GetStatusLabel(task.Status)
+                                </span>
+                            </div>
+
+                            <div class="task-meta">
+                                <span>Proxima execucao: <strong>@task.NextExecutionDate.ToString("dd/MM/yyyy")</strong></span>
+                                <span>Periodicidade: <strong>@task.RecurrenceLabel</strong></span>
+                                <span>@DescribeDue(task.DaysUntilDue)</span>
+                            </div>
+
+                            <div class="task-actions">
+                                <button class="tech-button ghost" type="button" @onclick="() => DeleteTaskAsync(task.Id)" disabled="@IsBusy">
+                                    excluir
+                                </button>
+                                <button class="tech-button primary" type="button" @onclick="() => CompleteTaskAsync(task.Id)" disabled="@IsBusy">
+                                    concluir ciclo
+                                </button>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+
+        <section class="panel alerts-panel">
+            <div class="panel-heading">
+                <p class="panel-kicker">Radar de manutencao</p>
+                <h2>ALERTAS ATIVOS</h2>
+            </div>
+
+            @if (_alerts.Items.Count == 0)
+            {
+                <p class="empty-state">Nenhum alerta ativo dentro da janela atual.</p>
+            }
+            else
+            {
+                <div class="alert-list">
+                    @foreach (var alert in _alerts.Items)
+                    {
+                        <article class="alert-card">
+                            <div class="alert-card-header">
+                                <strong>@alert.TaskName</strong>
+                                <span class="priority-pill @GetPriorityClass(alert.Priority)">
+                                    @GetPriorityLabel(alert.Priority)
+                                </span>
+                            </div>
+                            <p>@alert.Message</p>
+                            <small>Execucao prevista: @alert.NextExecutionDate.ToString("dd/MM/yyyy")</small>
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+
+        <section class="panel analysis-panel">
+            <div class="panel-heading">
+                <p class="panel-kicker">Leitura estrategica</p>
+                <h2>ANALISE DA IA</h2>
+            </div>
+
+            @if (_analysis is null)
+            {
+                <p class="empty-state">Preparando analise orbital...</p>
+            }
+            else
+            {
+                <div class="analysis-header">
+                    <span class="priority-pill @GetPriorityClass(_analysis.Priority)">@GetPriorityLabel(_analysis.Priority)</span>
+                    <span class="status-pill @(_analysis.UsedFallback ? "warning" : "ok")">@_analysis.Source</span>
+                </div>
+
+                <p class="analysis-summary">@_analysis.Summary</p>
+                <p class="analysis-recommendation">@_analysis.Recommendation</p>
+
+                <ul class="analysis-highlights">
+                    @foreach (var highlight in _analysis.Highlights)
+                    {
+                        <li>@highlight</li>
+                    }
+                </ul>
+            }
+        </section>
+    </div>
+</div>
+
+@code {
+    private readonly CreateMaintenanceTaskRequest _form = CreateDefaultForm();
+    private IReadOnlyList<MaintenanceTaskDto> _tasks = [];
+    private MaintenanceAlertsResponse _alerts = new(DateTimeOffset.UtcNow, 0, []);
+    private MaintenanceAnalysisDto? _analysis;
+    private MaintenanceTaskFilter _currentFilter = MaintenanceTaskFilter.All;
+    private bool _isLoading = true;
+    private bool _isMutating;
+    private string? _errorMessage;
+
+    private bool IsBusy => _isLoading || _isMutating;
+    private int TotalCount => _tasks.Count;
+    private int PendingCount => _tasks.Count(task => task.Status == MaintenanceTaskStatus.Pending);
+    private int OverdueCount => _tasks.Count(task => task.Status == MaintenanceTaskStatus.Overdue);
+    private int AlertCount => _alerts.Items.Count;
+
+    protected override async Task OnInitializedAsync() => await RefreshDashboardAsync();
+
+    private async Task RefreshDashboardAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            var tasksTask = ApiClient.GetTasksAsync(_currentFilter);
+            var alertsTask = ApiClient.GetAlertsAsync();
+            var analysisTask = ApiClient.GetAnalysisAsync();
+
+            await Task.WhenAll(tasksTask, alertsTask, analysisTask);
+
+            _tasks = await tasksTask;
+            _alerts = await alertsTask;
+            _analysis = await analysisTask;
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Nao foi possivel sincronizar com a API. Confirme se o setor da API esta operacional.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task ChangeFilterAsync(MaintenanceTaskFilter filter)
+    {
+        if (_currentFilter == filter && _tasks.Count > 0)
+        {
+            return;
+        }
+
+        _currentFilter = filter;
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            _tasks = await ApiClient.GetTasksAsync(filter);
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Falha ao atualizar o filtro das tarefas monitoradas.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task CreateTaskAsync()
+    {
+        _isMutating = true;
+        _errorMessage = null;
+
+        try
+        {
+            await ApiClient.CreateTaskAsync(_form);
+            ResetForm();
+            await RefreshDashboardAsync();
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Nao foi possivel registrar a nova rotina de manutencao.";
+        }
+        finally
+        {
+            _isMutating = false;
+        }
+    }
+
+    private async Task CompleteTaskAsync(Guid id)
+    {
+        _isMutating = true;
+        _errorMessage = null;
+
+        try
+        {
+            await ApiClient.CompleteTaskAsync(id);
+            await RefreshDashboardAsync();
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Falha ao concluir o ciclo da tarefa selecionada.";
+        }
+        finally
+        {
+            _isMutating = false;
+        }
+    }
+
+    private async Task DeleteTaskAsync(Guid id)
+    {
+        _isMutating = true;
+        _errorMessage = null;
+
+        try
+        {
+            await ApiClient.DeleteTaskAsync(id);
+            await RefreshDashboardAsync();
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Falha ao excluir a tarefa selecionada.";
+        }
+        finally
+        {
+            _isMutating = false;
+        }
+    }
+
+    private void ResetForm()
+    {
+        _form.Name = string.Empty;
+        _form.Description = string.Empty;
+        _form.RecurrenceInterval = 1;
+        _form.RecurrenceUnit = RecurrenceUnit.Months;
+        _form.FirstExecutionDate = DateOnly.FromDateTime(DateTime.Today);
+    }
+
+    private static CreateMaintenanceTaskRequest CreateDefaultForm()
+        => new()
+        {
+            Name = string.Empty,
+            Description = string.Empty,
+            RecurrenceInterval = 1,
+            RecurrenceUnit = RecurrenceUnit.Months,
+            FirstExecutionDate = DateOnly.FromDateTime(DateTime.Today)
+        };
+
+    private static string GetFilterLabel(MaintenanceTaskFilter filter) => filter switch
+    {
+        MaintenanceTaskFilter.Pending => "pendentes",
+        MaintenanceTaskFilter.Overdue => "atrasadas",
+        _ => "todas"
+    };
+
+    private static string GetRecurrenceLabel(RecurrenceUnit unit) => unit switch
+    {
+        RecurrenceUnit.Days => "dias",
+        RecurrenceUnit.Weeks => "semanas",
+        RecurrenceUnit.Months => "meses",
+        _ => "ciclos"
+    };
+
+    private static string GetStatusLabel(MaintenanceTaskStatus status) => status switch
+    {
+        MaintenanceTaskStatus.Overdue => "atrasada",
+        _ => "pendente"
+    };
+
+    private static string GetPriorityLabel(MaintenancePriority priority) => priority switch
+    {
+        MaintenancePriority.Critical => "critica",
+        MaintenancePriority.High => "alta",
+        MaintenancePriority.Medium => "media",
+        _ => "baixa"
+    };
+
+    private static string GetPriorityClass(MaintenancePriority priority) => priority switch
+    {
+        MaintenancePriority.Critical => "priority-critical",
+        MaintenancePriority.High => "priority-high",
+        MaintenancePriority.Medium => "priority-medium",
+        _ => "priority-low"
+    };
+
+    private static string DescribeDue(int daysUntilDue) => daysUntilDue switch
+    {
+        < 0 => $"{Math.Abs(daysUntilDue)} dia(s) de atraso",
+        0 => "vence hoje",
+        1 => "vence amanha",
+        _ => $"vence em {daysUntilDue} dia(s)"
+    };
+}

@@ -1,0 +1,525 @@
+:root {
+    --surface: #121315;
+    --surface-low: #1a1c1e;
+    --surface-high: #292a2c;
+    --surface-top: rgba(18, 19, 21, 0.86);
+    --surface-overlay: rgba(15, 42, 68, 0.52);
+    --surface-border: #dac49c;
+    --text-main: #e3e2e4;
+    --text-muted: #c3c6ce;
+    --primary: #b0c9ea;
+    --secondary: #dac49c;
+    --green: #84dd15;
+    --green-dark: #172e00;
+    --red: #ffb4ab;
+    --red-dark: #93000a;
+    --blue-grid: rgba(176, 201, 234, 0.08);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    min-height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: "Manrope", sans-serif;
+    color: var(--text-main);
+    background:
+        radial-gradient(circle at top, rgba(72, 96, 125, 0.32), transparent 40%),
+        radial-gradient(circle at bottom right, rgba(132, 221, 21, 0.12), transparent 30%),
+        linear-gradient(135deg, #0d0e10 0%, #121315 38%, #1f2022 100%);
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+        radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.55) 0 1px, transparent 1px),
+        radial-gradient(circle at 85% 10%, rgba(255, 255, 255, 0.4) 0 1px, transparent 1px),
+        radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.32) 0 1px, transparent 1px),
+        linear-gradient(transparent 95%, var(--blue-grid) 95%),
+        linear-gradient(90deg, transparent 95%, var(--blue-grid) 95%);
+    background-size: auto, auto, auto, 64px 64px, 64px 64px;
+    opacity: 0.55;
+}
+
+h1,
+h2,
+h3,
+.panel-kicker,
+.tech-button,
+.filter-button,
+.status-pill,
+.priority-pill,
+.signal-chip {
+    font-family: "Space Grotesk", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+    margin: 0;
+}
+
+a {
+    color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    border: 1px solid #43474d;
+    background: var(--surface-low);
+    color: var(--text-main);
+    padding: 0.95rem 1rem;
+    border-radius: 0;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid var(--green);
+    outline-offset: 2px;
+}
+
+textarea {
+    min-height: 132px;
+    resize: vertical;
+}
+
+.app-shell {
+    position: relative;
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+.dashboard {
+    max-width: 1440px;
+    margin: 0 auto;
+    display: grid;
+    gap: 1.5rem;
+}
+
+.dashboard-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.panel {
+    position: relative;
+    overflow: hidden;
+    padding: 1.5rem;
+    background: linear-gradient(180deg, var(--surface-top), rgba(18, 19, 21, 0.98));
+    border: 1px solid var(--surface-border);
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+    backdrop-filter: blur(10px);
+}
+
+.panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba(176, 201, 234, 0.08);
+    pointer-events: none;
+}
+
+.panel-kicker {
+    color: var(--secondary);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.panel-heading {
+    display: grid;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.hero-panel {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 0.9fr);
+    align-items: center;
+    background:
+        linear-gradient(120deg, rgba(15, 42, 68, 0.85), rgba(18, 19, 21, 0.95)),
+        linear-gradient(180deg, rgba(84, 69, 38, 0.28), transparent);
+}
+
+.hero-panel h1 {
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    line-height: 1.05;
+}
+
+.hero-copy {
+    margin-top: 1rem;
+    max-width: 54rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+}
+
+.hero-status {
+    display: grid;
+    gap: 0.85rem;
+    justify-items: start;
+}
+
+.hero-callout {
+    color: var(--text-muted);
+}
+
+.signal-chip,
+.status-pill,
+.priority-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.45rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.status-pill.ok {
+    color: var(--green);
+    background: rgba(132, 221, 21, 0.12);
+}
+
+.status-pill.warning {
+    color: var(--secondary);
+    background: rgba(218, 196, 156, 0.12);
+}
+
+.status-pill.danger,
+.priority-high {
+    color: var(--red);
+    background: rgba(255, 180, 171, 0.12);
+}
+
+.priority-critical {
+    color: var(--red);
+    background: rgba(147, 0, 10, 0.24);
+    box-shadow: 0 0 20px rgba(147, 0, 10, 0.35);
+}
+
+.priority-medium {
+    color: var(--secondary);
+    background: rgba(218, 196, 156, 0.14);
+}
+
+.priority-low {
+    color: var(--green);
+    background: rgba(132, 221, 21, 0.12);
+}
+
+.command-panel,
+.tasks-panel,
+.alerts-panel,
+.analysis-panel {
+    min-height: 100%;
+}
+
+.tasks-panel,
+.analysis-panel {
+    grid-column: span 2;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.field {
+    display: grid;
+    gap: 0.45rem;
+}
+
+.field-span {
+    grid-column: span 2;
+}
+
+.field label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.validation-summary {
+    margin: 0 0 1rem;
+    padding-left: 1rem;
+    color: var(--red);
+}
+
+.tech-button,
+.filter-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-height: 3rem;
+    padding: 0.85rem 1.2rem;
+    border: 1px solid var(--secondary);
+    background: transparent;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.tech-button:hover,
+.filter-button:hover,
+.link-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 1px rgba(132, 221, 21, 0.15), 0 0 18px rgba(132, 221, 21, 0.15);
+}
+
+.tech-button.primary {
+    background: linear-gradient(180deg, rgba(255, 180, 171, 0.9), rgba(147, 0, 10, 0.95));
+    border-color: #ffdad6;
+}
+
+.tech-button.ghost {
+    color: var(--secondary);
+}
+
+.filter-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+}
+
+.filter-button.active {
+    background: rgba(176, 201, 234, 0.12);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.9rem;
+}
+
+.stat-card {
+    display: grid;
+    gap: 0.45rem;
+    padding: 1rem;
+    background: rgba(31, 32, 34, 0.84);
+    border: 1px solid rgba(218, 196, 156, 0.35);
+}
+
+.stat-label {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.stat-value {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 1.5rem;
+}
+
+.task-list,
+.alert-list,
+.analysis-highlights {
+    display: grid;
+    gap: 1rem;
+}
+
+.task-card,
+.alert-card {
+    display: grid;
+    gap: 0.9rem;
+    padding: 1rem;
+    background: rgba(31, 32, 34, 0.92);
+    border: 1px solid rgba(218, 196, 156, 0.28);
+}
+
+.task-card.overdue {
+    border-color: rgba(255, 180, 171, 0.65);
+}
+
+.task-card.pending {
+    border-color: rgba(132, 221, 21, 0.35);
+}
+
+.task-card-header,
+.alert-card-header,
+.analysis-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.task-card-header p,
+.alert-card p,
+.analysis-summary,
+.analysis-recommendation,
+.empty-state,
+.not-found-panel p {
+    color: var(--text-muted);
+    line-height: 1.65;
+}
+
+.task-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.task-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.analysis-summary {
+    margin-top: 1rem;
+    font-size: 1.05rem;
+}
+
+.analysis-recommendation {
+    margin-top: 0.85rem;
+}
+
+.analysis-highlights {
+    margin: 1rem 0 0;
+    padding-left: 1.2rem;
+}
+
+.analysis-highlights li {
+    line-height: 1.6;
+    color: var(--text-main);
+}
+
+.system-alert-panel {
+    border-color: rgba(255, 180, 171, 0.8);
+    background: linear-gradient(180deg, rgba(147, 0, 10, 0.28), rgba(18, 19, 21, 0.98));
+}
+
+.not-found-panel {
+    max-width: 720px;
+    margin: 8vh auto 0;
+    display: grid;
+    gap: 1rem;
+    text-align: left;
+}
+
+.link-button {
+    width: fit-content;
+    text-decoration: none;
+}
+
+#blazor-error-ui {
+    display: none;
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 1000;
+    padding: 1rem 1.2rem;
+    background: rgba(147, 0, 10, 0.95);
+    color: #fff;
+    border: 1px solid #ffdad6;
+}
+
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    float: right;
+}
+
+.loading-progress {
+    position: absolute;
+    inset: 25vh 0 auto;
+    display: block;
+    width: 8rem;
+    height: 8rem;
+    margin: 0 auto;
+}
+
+.loading-progress circle {
+    fill: none;
+    stroke: rgba(218, 196, 156, 0.2);
+    stroke-width: 8px;
+    transform-origin: 50% 50%;
+    transform: rotate(-90deg);
+}
+
+.loading-progress circle:last-child {
+    stroke: var(--green);
+    stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;
+    transition: stroke-dasharray 0.05s ease-in-out;
+}
+
+.loading-progress-text {
+    position: absolute;
+    inset: calc(25vh + 3.3rem) 0 auto;
+    text-align: center;
+    font-family: "Space Grotesk", sans-serif;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.loading-progress-text::after {
+    content: var(--blazor-load-percentage-text, "Conectando");
+}
+
+@media (max-width: 1100px) {
+    .dashboard-grid,
+    .hero-panel {
+        grid-template-columns: 1fr;
+    }
+
+    .tasks-panel,
+    .analysis-panel {
+        grid-column: span 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .app-shell {
+        padding: 1rem;
+    }
+
+    .form-grid,
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .field-span {
+        grid-column: span 1;
+    }
+
+    .task-card-header,
+    .alert-card-header,
+    .analysis-header {
+        flex-direction: column;
+    }
+}
