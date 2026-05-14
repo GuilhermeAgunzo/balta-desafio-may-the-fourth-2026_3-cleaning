@@ -44,8 +44,16 @@ internal sealed class StubAlertAnalyzer(bool isConfigured, AiMaintenanceAnalysis
 {
     public bool IsConfigured { get; } = isConfigured;
 
+    public int CallCount { get; private set; }
+
+    public IReadOnlyCollection<MaintenanceAlertDto>? CapturedAlerts { get; private set; }
+
     public Task<AiMaintenanceAnalysisResult?> AnalyzeAsync(
         IReadOnlyCollection<MaintenanceAlertDto> alerts,
         CancellationToken cancellationToken)
-        => Task.FromResult(result);
+    {
+        CallCount++;
+        CapturedAlerts = alerts.ToArray();
+        return Task.FromResult(result);
+    }
 }

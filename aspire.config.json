@@ -1,5 +1,5 @@
 {
   "appHost": {
-    "path": "Cleaning.AppHost/Cleaning.AppHost.csproj"
+    "path": "src/Cleaning.AppHost/Cleaning.AppHost.csproj"
   }
 }

@@ -157,3 +157,7 @@ static Dictionary<string, string[]>? Validate<T>(T model)
 
 static bool IsHealthCheckRequest(PathString path)
     => path.StartsWithSegments("/health") || path.StartsWithSegments("/alive");
+
+public partial class Program
+{
+}

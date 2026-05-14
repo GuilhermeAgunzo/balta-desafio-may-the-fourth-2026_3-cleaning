@@ -1,11 +1,13 @@
 <Solution>
-  <Project Path="Cleaning.AI/Cleaning.AI.csproj" />
-  <Project Path="Cleaning.API/Cleaning.API.csproj" />
-  <Project Path="Cleaning.AppHost/Cleaning.AppHost.csproj" />
-  <Project Path="Cleaning.Application.Tests/Cleaning.Application.Tests.csproj" />
-  <Project Path="Cleaning.Application/Cleaning.Application.csproj" />
-  <Project Path="Cleaning.Core/Cleaning.Core.csproj" />
-  <Project Path="Cleaning.Frontend/Cleaning.Frontend.csproj" />
-  <Project Path="Cleaning.Infra/Cleaning.Infra.csproj" />
-  <Project Path="Cleaning.ServiceDefaults/Cleaning.ServiceDefaults.csproj" />
+  <Folder Name="/src/" />
+  <Folder Name="/tests/" />
+  <Project Path="src/Cleaning.AI/Cleaning.AI.csproj" />
+  <Project Path="src/Cleaning.API/Cleaning.API.csproj" />
+  <Project Path="src/Cleaning.AppHost/Cleaning.AppHost.csproj" />
+  <Project Path="tests/Cleaning.Application.Tests/Cleaning.Application.Tests.csproj" />
+  <Project Path="src/Cleaning.Application/Cleaning.Application.csproj" />
+  <Project Path="src/Cleaning.Core/Cleaning.Core.csproj" />
+  <Project Path="src/Cleaning.Frontend/Cleaning.Frontend.csproj" />
+  <Project Path="src/Cleaning.Infra/Cleaning.Infra.csproj" />
+  <Project Path="src/Cleaning.ServiceDefaults/Cleaning.ServiceDefaults.csproj" />
 </Solution>
