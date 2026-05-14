@@ -1,6 +1,8 @@
 <Solution>
   <Folder Name="/src/" />
-  <Folder Name="/tests/" />
+  <Folder Name="/tests/">
+    <Project Path="tests/Cleaning.API.Tests/Cleaning.API.Tests.csproj" />
+  </Folder>
   <Project Path="src/Cleaning.AI/Cleaning.AI.csproj" />
   <Project Path="src/Cleaning.API/Cleaning.API.csproj" />
   <Project Path="src/Cleaning.AppHost/Cleaning.AppHost.csproj" />
